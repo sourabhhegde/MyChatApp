@@ -4,6 +4,65 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Simple Chat App</title>
+  <style>/* Reset some default browser styles */
+    /* Reset some default browser styles */
+    body, h1, p, ul {
+     margin: 0;
+     padding: 0;
+   }
+   
+   body {
+     font-family: Arial, sans-serif;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     min-height: 100vh;
+     background-color: #f0f0f0;
+   }
+   
+   #chat {
+     width: 400px;
+     padding: 20px;
+     border: 1px solid #ccc;
+     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+     background-color: #fff;
+   }
+   
+   #messages {
+     list-style: none;
+     padding: 0;
+   }
+   
+   #messages li {
+     margin-bottom: 8px;
+   }
+   
+   #form {
+     margin-top: 15px;
+     display: flex;
+   }
+   
+   #input {
+     flex: 1;
+     padding: 8px;
+     border: 1px solid #ccc;
+     border-radius: 4px;
+   }
+   
+   button {
+     padding: 8px 15px;
+     border: none;
+     border-radius: 4px;
+     background-color: #007bff;
+     color: #fff;
+     cursor: pointer;
+   }
+   
+   button:hover {
+     background-color: #0056b3;
+   }
+   
+      </style>
 </head>
 <body>
   <div id="chat">
@@ -16,11 +75,34 @@
   <script>
     const socket = io();
 
+    // Mapping of word to emoji
+    const wordToEmoji = {
+      "woah": "😲",
+      "hey": "👋",
+      "lol": "😂",
+      "like": "🤍",
+      "congratulations": "🎉",
+      "react":"🔯"
+      // Add more word-emoji mappings as needed
+    };
+
     document.querySelector('form').addEventListener('submit', (e) => {
       e.preventDefault();
       const input = document.getElementById('input');
-      if (input.value) {
-        socket.emit('message', input.value);
+      let message = input.value.trim(); // Trim whitespace
+      
+      // Convert the message to lowercase for case-insensitive comparison
+      const lowerCaseMessage = message.toLowerCase();
+      
+      // Check if the lowercased message contains the word "woah" and replace it with the emoji
+      for (const word in wordToEmoji) {
+        if (lowerCaseMessage.includes(word)) {
+          message = message.replace(new RegExp(word, 'gi'), wordToEmoji[word]);
+        }
+      }
+      
+      if (message) {
+        socket.emit('message', message);
         input.value = '';
       }
     });
@@ -28,9 +110,10 @@
     socket.on('message', (msg) => {
       const messages = document.getElementById('messages');
       const li = document.createElement('li');
-      li.textContent = msg;
+      li.innerHTML = msg; // Use innerHTML to render the emoji
       messages.appendChild(li);
     });
   </script>
 </body>
 </html>
+
